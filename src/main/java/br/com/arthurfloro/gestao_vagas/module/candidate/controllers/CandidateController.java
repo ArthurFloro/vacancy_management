@@ -1,5 +1,6 @@
 package br.com.arthurfloro.gestao_vagas.module.candidate.controllers;
 
+import br.com.arthurfloro.gestao_vagas.exceptions.UserFoundException;
 import br.com.arthurfloro.gestao_vagas.module.candidate.CandidateEntity;
 import br.com.arthurfloro.gestao_vagas.module.candidate.CandidateRepository;
 import jakarta.validation.Valid;
@@ -18,6 +19,9 @@ public class CandidateController {
 
     @PostMapping("/")
     public CandidateEntity create(@Valid @RequestBody CandidateEntity candidateEntity) {
+        this.candidateRepository.findByUsernameOrEmail(candidateEntity.getUsername(), candidateEntity.getEmail()).ifPresent(user -> {
+            throw new UserFoundException();
+        });
        return this.candidateRepository.save(candidateEntity);
     }
 }
