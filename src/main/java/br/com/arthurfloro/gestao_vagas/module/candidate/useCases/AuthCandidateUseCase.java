@@ -6,8 +6,8 @@ import br.com.arthurfloro.gestao_vagas.module.candidate.dto.AuthCandidateRespons
 import br.com.arthurfloro.gestao_vagas.module.candidate.repositories.CandidateRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,15 +44,18 @@ public class AuthCandidateUseCase {
         }
 
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        var expiresIn = Instant.now().plus(Duration.ofMinutes(10));
         var token = JWT.create()
                 .withIssuer("javagas")
                 .withSubject(candidate.getId().toString())
                 .withClaim("roles", Arrays.asList("candidate"))
-                .withExpiresAt(Instant.now().plus(Duration.ofMinutes(10)))
+                .withExpiresAt(expiresIn)
                 .sign(algorithm);
 
         var AuthCandidateResponse = AuthCandidateResponseDTO.builder()
-                .access_token(token).build();
+                .access_token(token)
+                .expires_in(expiresIn.toEpochMilli())
+                .build();
 
         return AuthCandidateResponse;
     }
